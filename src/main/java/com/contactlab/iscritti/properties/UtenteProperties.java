@@ -12,14 +12,33 @@ public class UtenteProperties {
     private String urlFile;
     private String urlWrite;
     private String url;
-    private String urlout;
+    private String header;
+    private String col;
+    private String desc;
 
-    public String getUrlout() {
-        return urlout;
+
+    public String getDesc() {
+        return desc;
     }
 
-    public void setUrlout(String urlout) {
-        this.urlout = urlout;
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getCol() {
+        return col;
+    }
+
+    public void setCol(String col) {
+        this.col = col;
     }
 
     public String getUrl() {

@@ -29,8 +29,9 @@ public class DaoGeneral {
     }
 
     @Transactional
-    public void outAll(){
-        Query query = em.createNativeQuery(utenteProperties.getUrlout());
+    public void outAll(String url){
+        Query query = em.createNativeQuery(url);
+
         query.getResultList();
 
 

@@ -1,26 +1,27 @@
 package com.contactlab.iscritti.service;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.contactlab.iscritti.dao.DaoGeneral;
 import com.contactlab.iscritti.data.UtenteCopyDb;
 import com.contactlab.iscritti.data.UtenteDb;
+import com.contactlab.iscritti.metod.MetodiUtili;
 import com.contactlab.iscritti.properties.UtenteProperties;
 import com.contactlab.iscritti.repository.UtentiCopyRepository;
+import com.contactlab.iscritti.repository.UtentiPageRepository;
 import com.contactlab.iscritti.repository.UtentiRepository;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
-import java.io.*;
-import java.sql.Date;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,46 +42,13 @@ public class UtenteService {
     private UtentiCopyRepository utentiCopyRepository;
 
     @Autowired
+    private UtentiPageRepository utentiPageRepository;
+
+    @Autowired
     private DaoGeneral daoGeneral;
 
 
-    /**
-     * METODI UTILI
-     **/
 
-    public Date createDate(String day, String month, String year) {
-
-        String date = year + "-" + month + "-" + day;
-
-        return java.sql.Date.valueOf(date);
-
-
-    }
-
-
-    public String isValid(String tel) {
-
-        try {
-            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-
-
-            Phonenumber.PhoneNumber mobileTelefono = phoneUtil.parse(tel, "IT");
-
-            if (phoneUtil.isValidNumber(mobileTelefono)) {
-
-                tel = phoneUtil.format(mobileTelefono, PhoneNumberUtil.PhoneNumberFormat.E164);
-
-                logger.info("telefono verificato!");
-
-                return tel;
-            } else {
-                logger.info("telefono non verificato");
-            }
-        } catch (NumberParseException e) {
-            logger.warn("is valid exception Number", e);
-        }
-        return tel;
-    }
 
 
     /******************************************************************************************************************/
@@ -94,9 +62,10 @@ public class UtenteService {
 
 
     public void modifyTable() {
+        
+        Pageable pageable = PageRequest.of(1,100);
 
-
-        List<UtenteDb> lista = utentiRepository.findTop100ByProcessed(0);
+        List<UtenteDb> lista = utentiPageRepository.findAllByProcessed(0,pageable);
 
         while (lista.size() != 0) {
 
@@ -117,7 +86,7 @@ public class UtenteService {
                 String year = utenteDb.getBirthyear();
 
                 if (StringUtils.isNotBlank(day) && StringUtils.isNotBlank(month) && StringUtils.isNotBlank(year)) {
-                    utenteCopyDb.setDob(createDate(day, month, year));
+                    utenteCopyDb.setDob(MetodiUtili.createDate(day, month, year));
 
                 }
 
@@ -149,7 +118,7 @@ public class UtenteService {
 
                     if (StringUtils.isNotBlank(mobilephone)) {
 
-                        String mobilephoneSistemato = isValid(mobilephone);
+                        String mobilephoneSistemato = MetodiUtili.isValid(mobilephone);
 
                         if (!mobilephoneSistemato.equalsIgnoreCase(utenteDb.getMobilephone())) {
                             utenteCopyDb.setMobilephone(mobilephoneSistemato);
@@ -183,9 +152,9 @@ public class UtenteService {
                     utenteCopyDb.setTelephone(telephone);
                 } else {
 
-                    if (StringUtils.isNotBlank(telephone)) {
+                    if (StringUtils.isNotBlank(telephone) && telephone.length() >= 10 ) {
 
-                        String telephoneSistemato = isValid(telephone);
+                        String telephoneSistemato = MetodiUtili.isValid(telephone);
 
                         if (!telephoneSistemato.equalsIgnoreCase(utenteDb.getTelephone())) {
                             utenteCopyDb.setTelephone(telephoneSistemato);
@@ -233,7 +202,7 @@ public class UtenteService {
             }
 
 
-            lista = utentiRepository.findTop100ByProcessed(0);
+            lista = utentiPageRepository.findAllByProcessed(0,pageable);
 
         }
     }
@@ -278,10 +247,16 @@ public class UtenteService {
 
 
     public void out() {
-         daoGeneral.outAll();
 
+        LocalDateTime data =  LocalDateTime.now();
 
+        String composizione = "customer_" + data.getDayOfMonth() + data.getMonthValue() + data.getYear() + "_" + data.getHour() + data.getMinute() + data.getSecond();
 
+        String name = "'/mnt/c/Users/francesco.salvia/Desktop/iscrittiRifatto/" + composizione + ".csv'";
+
+        String url = utenteProperties.getHeader() + utenteProperties.getCol() + name + utenteProperties.getDesc();
+
+        daoGeneral.outAll(url);
     }
 
 
