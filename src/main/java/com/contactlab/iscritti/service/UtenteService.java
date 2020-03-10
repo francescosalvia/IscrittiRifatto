@@ -26,7 +26,7 @@ public class UtenteService {
 
     private static final Logger logger = LoggerFactory.getLogger(UtenteService.class);
 
-    MetodiUtili m = new MetodiUtili();
+    TransactionService t = new TransactionService();
 
     @Autowired
     private UtenteProperties utenteProperties;
@@ -42,6 +42,9 @@ public class UtenteService {
 
     @Autowired
     private DaoGeneral daoGeneral;
+
+    @Autowired
+    private  TransactionService transactionService;
 
 
     /******************************************************************************************************************/
@@ -67,7 +70,7 @@ public class UtenteService {
 
                 UtenteDb utenteDb = lista.get(i);
 
-                m.modifyUtenteTable(utenteDb);
+                transactionService.modifyUtenteTable(utenteDb);
             }
 
 
