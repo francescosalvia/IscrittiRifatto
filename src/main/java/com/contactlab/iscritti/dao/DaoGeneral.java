@@ -30,6 +30,7 @@ public class DaoGeneral {
 
     @Transactional
     public void outAll(String url){
+
         Query query = em.createNativeQuery(url);
 
         query.getResultList();
