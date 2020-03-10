@@ -9,10 +9,13 @@ import com.contactlab.iscritti.repository.UtentiRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,7 +47,8 @@ public class UtenteService {
     /******************************************************************************************************************/
 
     public void readAll() {
-        long start = System.currentTimeMillis();
+
+        Instant start = Instant.now();
 
         logger.info("leggo tutto");
 
@@ -52,38 +56,48 @@ public class UtenteService {
 
         logger.info("File importato nel db");
 
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        logger.info("Method modifyTable execution lasted:" + time + " ms");
+        Instant end = Instant.now();
+
+        Duration duration = Duration.between(start, end);
+
+        logger.info("Method modifyTable execution lasted:" + duration.toMillis() + " ms");
     }
 
 
     public void modifyTable() {
 
-        long start = System.currentTimeMillis();
+        Instant start = Instant.now();
 
-        Pageable pageable = PageRequest.of(1, 100);
+        Pageable pageable = PageRequest.of(0, 100);
 
-        List<UtenteDb> lista = utentiPageRepository.findAllByProcessed(0, pageable);
+        Page<UtenteDb> page = utentiPageRepository.findAllByProcessed(0, pageable);
 
-        while (lista.size() != 0) {
 
+        while (page.hasNext()) {
+            List<UtenteDb> lista = page.getContent();
             logger.info("Method modifyTable execution started ");
 
             for (int i = 0; i < lista.size(); i++) {
 
                 UtenteDb utenteDb = lista.get(i);
 
-                transactionService.modifyUtenteTable(utenteDb);
+                try {
+                    transactionService.modifyUtenteTable(utenteDb);
+                } catch (Exception e) {
+                    logger.warn("Exception in modify Utente Table", e);
+                }
+
             }
 
-            lista = utentiPageRepository.findAllByProcessed(0, pageable);
+
 
         }
 
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        logger.info("Method modifyTable execution lasted:" + time + " ms");
+        Instant end = Instant.now();
+
+        Duration duration = Duration.between(start, end);
+
+        logger.info("Method modifyTable execution lasted:" + duration.toMinutes() + " min");
     }
 
 
@@ -91,8 +105,7 @@ public class UtenteService {
 
     public void out() {
 
-
-        long start = System.currentTimeMillis();
+        Instant start = Instant.now();
 
         logger.info("Metodo salvataggio file csv");
 
@@ -112,9 +125,11 @@ public class UtenteService {
 
         logger.info("Salvataggio effettuato!");
 
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        logger.info("Method modifyTable execution lasted:" + time + " ms");
+        Instant end = Instant.now();
+
+        Duration duration = Duration.between(start, end);
+
+        logger.info("Method modifyTable execution lasted:" + duration.toMillis() + " ms");
     }
 
 

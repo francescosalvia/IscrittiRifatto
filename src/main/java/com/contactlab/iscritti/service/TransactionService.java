@@ -29,8 +29,6 @@ public class TransactionService {
     @Transactional
     public void modifyUtenteTable(UtenteDb utenteDb) {
 
-        try {
-
             logger.info("Creo utente per clienti_copy nel db");
             UtenteCopyDb utenteCopyDb = new UtenteCopyDb();
 
@@ -157,8 +155,6 @@ public class TransactionService {
 
             utentiRepository.save(utenteDb);
             logger.info("Utente aggiornato con processed 1");
-        } catch (Exception e){
-            logger.warn("Un utente non e' stato salvato controllare uid = {}",utenteDb.getUid(),e);
-        }
+
     }
 }

@@ -1,6 +1,7 @@
 package com.contactlab.iscritti.repository;
 
 import com.contactlab.iscritti.data.UtenteDb;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -8,5 +9,7 @@ import java.util.List;
 
 public interface UtentiPageRepository  extends PagingAndSortingRepository<UtenteDb, Integer>  {
 
-    List<UtenteDb> findAllByProcessed(int processed, Pageable pageable);
+//    List<UtenteDb> findAllByProcessed(int processed, Pageable pageable);
+
+    Page<UtenteDb> findAllByProcessed(int processed, Pageable pageable);
 }
