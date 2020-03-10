@@ -1,14 +1,11 @@
 package com.contactlab.iscritti.service;
 
 import com.contactlab.iscritti.dao.DaoGeneral;
-import com.contactlab.iscritti.data.UtenteCopyDb;
 import com.contactlab.iscritti.data.UtenteDb;
-import com.contactlab.iscritti.metod.MetodiUtili;
 import com.contactlab.iscritti.properties.UtenteProperties;
 import com.contactlab.iscritti.repository.UtentiCopyRepository;
 import com.contactlab.iscritti.repository.UtentiPageRepository;
 import com.contactlab.iscritti.repository.UtentiRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -81,8 +77,6 @@ public class UtenteService {
                 transactionService.modifyUtenteTable(utenteDb);
             }
 
-
-
             lista = utentiPageRepository.findAllByProcessed(0, pageable);
 
         }
@@ -96,6 +90,7 @@ public class UtenteService {
 
 
     public void out() {
+
 
         long start = System.currentTimeMillis();
 
@@ -116,7 +111,7 @@ public class UtenteService {
         }
 
         logger.info("Salvataggio effettuato!");
-        
+
         long end = System.currentTimeMillis();
         long time = end - start;
         logger.info("Method modifyTable execution lasted:" + time + " ms");
