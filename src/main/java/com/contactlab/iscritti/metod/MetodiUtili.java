@@ -61,6 +61,9 @@ public class MetodiUtili {
                 return tel;
             } else {
                 logger.info("telefono non verificato");
+                 tel = "";
+                return tel;
+
             }
         } catch (NumberParseException e) {
             logger.warn("is valid exception Number", e);

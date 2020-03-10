@@ -26,8 +26,6 @@ public class UtenteService {
 
     private static final Logger logger = LoggerFactory.getLogger(UtenteService.class);
 
-    TransactionService t = new TransactionService();
-
     @Autowired
     private UtenteProperties utenteProperties;
 
@@ -50,21 +48,31 @@ public class UtenteService {
     /******************************************************************************************************************/
 
     public void readAll() {
+        long start = System.currentTimeMillis();
+
         logger.info("leggo tutto");
+
         daoGeneral.importAll();
 
         logger.info("File importato nel db");
 
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        logger.info("Method modifyTable execution lasted:" + time + " ms");
     }
 
 
     public void modifyTable() {
+
+        long start = System.currentTimeMillis();
 
         Pageable pageable = PageRequest.of(1, 100);
 
         List<UtenteDb> lista = utentiPageRepository.findAllByProcessed(0, pageable);
 
         while (lista.size() != 0) {
+
+            logger.info("Method modifyTable execution started ");
 
             for (int i = 0; i < lista.size(); i++) {
 
@@ -74,9 +82,14 @@ public class UtenteService {
             }
 
 
+
             lista = utentiPageRepository.findAllByProcessed(0, pageable);
 
         }
+
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        logger.info("Method modifyTable execution lasted:" + time + " ms");
     }
 
 
@@ -84,7 +97,10 @@ public class UtenteService {
 
     public void out() {
 
+        long start = System.currentTimeMillis();
+
         logger.info("Metodo salvataggio file csv");
+
         LocalDateTime data = LocalDateTime.now();
 
         String composizione = "customer_" + data.getDayOfMonth() + data.getMonthValue() + data.getYear() + "_" + data.getHour() + data.getMinute() + data.getSecond();
@@ -100,6 +116,10 @@ public class UtenteService {
         }
 
         logger.info("Salvataggio effettuato!");
+        
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        logger.info("Method modifyTable execution lasted:" + time + " ms");
     }
 
 
