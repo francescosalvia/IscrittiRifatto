@@ -30,7 +30,6 @@ public class UtentiController {
 
     @PostMapping("/scrivi")
     public void scrivi() {
-      //  service.scrivi();
         service.out();
     }
 

@@ -65,7 +65,7 @@ public class UtenteService {
 
 
     public void modifyTable() {
-
+        logger.info("Method modifyTable execution started ");
         Instant start = Instant.now();
 
         Pageable pageable = PageRequest.of(0, 100);
@@ -75,7 +75,7 @@ public class UtenteService {
 
         while (page.hasNext()) {
             List<UtenteDb> lista = page.getContent();
-            logger.info("Method modifyTable execution started ");
+
 
             for (int i = 0; i < lista.size(); i++) {
 
@@ -88,9 +88,6 @@ public class UtenteService {
                 }
 
             }
-
-
-
         }
 
         Instant end = Instant.now();
@@ -120,7 +117,7 @@ public class UtenteService {
         try {
             daoGeneral.outAll(url);
         } catch (Exception e) {
-            logger.warn(" ");
+            logger.warn("Eccezione",e.getMessage());
         }
 
         logger.info("Salvataggio effettuato!");
