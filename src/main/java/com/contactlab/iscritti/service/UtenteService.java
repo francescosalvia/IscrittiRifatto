@@ -1,5 +1,6 @@
 package com.contactlab.iscritti.service;
 
+import com.contactlab.iscritti.config.UtentiConfig;
 import com.contactlab.iscritti.dao.DaoGeneral;
 import com.contactlab.iscritti.data.UtenteDb;
 import com.contactlab.iscritti.properties.UtenteProperties;
@@ -9,9 +10,13 @@ import com.contactlab.iscritti.repository.UtentiRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -128,6 +133,51 @@ public class UtenteService {
 
         logger.info("Method modifyTable execution lasted:" + duration.toMillis() + " ms");
     }
+
+
+    public void test(){
+        Instant start = Instant.now();
+        logger.info("Test iniziato");
+
+        ApplicationContext context = new AnnotationConfigApplicationContext(UtentiConfig.class);
+        ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) context.getBean("taskExecutor");
+
+
+
+        Pageable pageable = PageRequest.of(0, 100);
+
+        Page<UtenteDb> page = utentiPageRepository.findAllByProcessed(0, pageable);
+
+        List<UtenteDb> lista = page.getContent();
+
+        for (int i = 0; i < lista.size(); i++) {
+
+            UtenteDb utenteDb = lista.get(i);
+
+            try {
+
+                logger.info("Stai leggendo l'utente con uid = {}",utenteDb.getUid());
+                PrintClienti printTask1 = (PrintClienti) context.getBean("printTask2");
+                printTask1.setName(utenteDb.getFirstname());
+                printTask1.setCognome(utenteDb.getLastname());
+
+                taskExecutor.execute(printTask1);
+
+            } catch (Exception e) {
+                logger.warn("Exception nel test", e);
+            }
+
+        }
+
+        Instant end = Instant.now();
+
+        Duration duration = Duration.between(start, end);
+
+        logger.info("Test execution lasted:" + duration.toMillis() + " ms");
+
+    }
+
+
 
 
 }

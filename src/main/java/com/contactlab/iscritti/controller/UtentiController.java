@@ -33,5 +33,10 @@ public class UtentiController {
         service.out();
     }
 
+    @PostMapping("/test")
+    public void test() {
+        service.test();
+    }
+
 
 }
