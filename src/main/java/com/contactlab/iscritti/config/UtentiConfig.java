@@ -1,5 +1,6 @@
 package com.contactlab.iscritti.config;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +13,8 @@ public class UtentiConfig {
     @Bean
     public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-        pool.setCorePoolSize(10);
-        pool.setMaxPoolSize(20);
+        pool.setCorePoolSize(100);
+        pool.setMaxPoolSize(100);
         pool.setWaitForTasksToCompleteOnShutdown(true);
         return pool;
     }

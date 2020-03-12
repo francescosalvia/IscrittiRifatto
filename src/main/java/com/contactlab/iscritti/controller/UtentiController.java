@@ -2,14 +2,16 @@ package com.contactlab.iscritti.controller;
 
 import com.contactlab.iscritti.service.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@ComponentScan(basePackages = "com.contactlab.iscritti.service")
 public class UtentiController {
 
 
-    @Autowired
+    @Autowired(required=true)
     UtenteService service;
 
 

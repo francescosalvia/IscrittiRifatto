@@ -1,13 +1,9 @@
 package com.contactlab.iscritti;
 
-import com.contactlab.iscritti.data.Utente;
-import com.contactlab.iscritti.service.UtenteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.List;
 
 @SpringBootApplication
 public class IscrittiApplication {

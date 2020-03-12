@@ -10,13 +10,13 @@ import com.contactlab.iscritti.repository.UtentiRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-@Service
+@Service("utenteService")
 public class UtenteService {
 
     private static final Logger logger = LoggerFactory.getLogger(UtenteService.class);
@@ -46,7 +46,21 @@ public class UtenteService {
     private DaoGeneral daoGeneral;
 
     @Autowired
-    private  TransactionService transactionService;
+    private TransactionService transactionService;
+
+    @Autowired
+    private PrintClienti printClienti;
+
+    @Autowired
+    private UtentiConfig utentiConfig;
+
+    @Autowired
+    private  ApplicationContext applicationContext;
+
+    @Autowired
+    @Qualifier("taskExecutor")
+    private  ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
 
 
     /******************************************************************************************************************/
@@ -139,8 +153,11 @@ public class UtenteService {
         Instant start = Instant.now();
         logger.info("Test iniziato");
 
-        ApplicationContext context = new AnnotationConfigApplicationContext(UtentiConfig.class);
-        ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) context.getBean("taskExecutor");
+
+        //= new AnnotationConfigApplicationContext(UtentiConfig.class);
+        //ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) context.getBean("taskExecutor");
+
+        final PrintClienti task = applicationContext.getBean(PrintClienti.class);
 
 
 
@@ -157,11 +174,12 @@ public class UtenteService {
             try {
 
                 logger.info("Stai leggendo l'utente con uid = {}",utenteDb.getUid());
-                PrintClienti printTask1 = (PrintClienti) context.getBean("printTask2");
-                printTask1.setName(utenteDb.getFirstname());
-                printTask1.setCognome(utenteDb.getLastname());
+               // PrintClienti printTask1 = (PrintClienti) context.getBean("printTask2");
 
-                taskExecutor.execute(printTask1);
+                task.setName(utenteDb.getFirstname());
+                task.setCognome(utenteDb.getLastname());
+
+                threadPoolTaskExecutor.execute(task);
 
             } catch (Exception e) {
                 logger.warn("Exception nel test", e);
@@ -173,7 +191,7 @@ public class UtenteService {
 
         Duration duration = Duration.between(start, end);
 
-        logger.info("Test execution lasted:" + duration.toMillis() + " ms");
+        logger.info("Test execution lasted: " + duration.toMillis() + " ms");
 
     }
 
