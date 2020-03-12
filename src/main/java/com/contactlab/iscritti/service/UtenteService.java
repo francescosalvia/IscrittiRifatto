@@ -16,6 +16,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +58,8 @@ public class UtenteService {
     @Autowired
     private  ApplicationContext applicationContext;
 
-    @Autowired
-    @Qualifier("taskExecutor")
+ @Autowired
+  @Qualifier("taskExecutor")
     private  ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
 
@@ -99,7 +100,6 @@ public class UtenteService {
             for (int i = 0; i < lista.size(); i++) {
 
                 UtenteDb utenteDb = lista.get(i);
-
                 try {
                     transactionService.modifyUtenteTable(utenteDb);
                 } catch (Exception e) {
@@ -150,50 +150,51 @@ public class UtenteService {
 
 
     public void test(){
-        Instant start = Instant.now();
-        logger.info("Test iniziato");
-
-
-        //= new AnnotationConfigApplicationContext(UtentiConfig.class);
-        //ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) context.getBean("taskExecutor");
-
-        final PrintClienti task = applicationContext.getBean(PrintClienti.class);
-
 
 
         Pageable pageable = PageRequest.of(0, 100);
 
         Page<UtenteDb> page = utentiPageRepository.findAllByProcessed(0, pageable);
+        Slice<UtenteDb> slice;
 
-        List<UtenteDb> lista = page.getContent();
+        do {
+            Instant start = Instant.now();
 
-        for (int i = 0; i < lista.size(); i++) {
+            slice = utentiPageRepository.findAllByProcessed(0,pageable);
 
-            UtenteDb utenteDb = lista.get(i);
+            final List<UtenteDb> lista = slice.getContent();
 
-            try {
+            for (int i = 0; i < lista.size(); i++) {
+                UtenteDb utenteDb = lista.get(i);
 
-                logger.info("Stai leggendo l'utente con uid = {}",utenteDb.getUid());
-               // PrintClienti printTask1 = (PrintClienti) context.getBean("printTask2");
+                final PrintClienti task = applicationContext.getBean(PrintClienti.class);
 
-                task.setName(utenteDb.getFirstname());
-                task.setCognome(utenteDb.getLastname());
+                task.setUtenteDb(utenteDb);
 
                 threadPoolTaskExecutor.execute(task);
 
-            } catch (Exception e) {
-                logger.warn("Exception nel test", e);
+
+
             }
 
-        }
 
-        Instant end = Instant.now();
 
-        Duration duration = Duration.between(start, end);
 
-        logger.info("Test execution lasted: " + duration.toMillis() + " ms");
+
+            Instant end = Instant.now();
+
+            Duration duration = Duration.between(start, end);
+
+            logger.info("Tempo Slice corrente:" + duration.toMinutes() + " min");
+
+        } while (slice.hasNext());
 
     }
+
+
+
+
+
 
 
 
